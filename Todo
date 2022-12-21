@@ -1,0 +1,51 @@
+import sqlite3
+
+# Connect to the database
+conn = sqlite3.connect('todo.db')
+
+# Create the table if it doesn't exist
+conn.execute('''CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, task TEXT, completed BOOLEAN)''')
+
+def get_all_tasks():
+    # Get all tasks from the database
+    cursor = conn.execute('SELECT id, task, completed FROM tasks')
+    tasks = []
+    for row in cursor:
+        tasks.append({'id': row[0], 'task': row[1], 'completed': row[2]})
+    return tasks
+
+def add_task(task):
+    # Add a new task to the database
+    conn.execute('INSERT INTO tasks (task, completed) VALUES (?, ?)', (task, False))
+    conn.commit()
+
+def mark_task_complete(task_id):
+    # Mark a task as complete in the database
+    conn.execute('UPDATE tasks SET completed = 1 WHERE id = ?', (task_id,))
+    conn.commit()
+
+def delete_task(task_id):
+    # Delete a task from the database
+    conn.execute('DELETE FROM tasks WHERE id = ?', (task_id,))
+    conn.commit()
+
+# Test the functions
+add_task('Learn Python')
+add_task('Build a todo list app')
+
+tasks = get_all_tasks()
+print(tasks)
+
+mark_task_complete(1)
+
+tasks = get_all_tasks()
+print(tasks)
+
+delete_task(2)
+
+tasks = get_all_tasks()
+print(tasks)
+
+# Close the database connection
+conn.close()
+
